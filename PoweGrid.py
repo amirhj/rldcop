@@ -4,6 +4,7 @@ class Generator:
     def __init__(self, maxValue):
         self.value = 0
         self.maxValue = maxValue
+        self.actions = [1,-1]
 
     def increase(self):
         if self.value + 1 <= self.maxValue:
@@ -15,6 +16,9 @@ class Generator:
 
     def getValue(self):
         return self.value
+
+    def getActions(self):
+        return self.actions
 
 class Resource:
     def __init__(self, values, distribution):
@@ -97,6 +101,27 @@ class PowerGrid:
             b = self.gridJSON['powerLines'][pl]['to']
 
             self.powerLines[(a,b)] = { 'id':pl, 'value':0, 'capacity':self.gridJSON['powerLines'][pl]['capacity'] }
+
+    def sendPowerThrough(self, line, power):
+        if not line in self.powerLines:
+            line = (line[1], line[0])
+
+        if not line in self.powerLines:
+            raise Exception('Error: Invalide power line.')
+
+        if abs(power) > self.powerLines[line]['capacity']:
+            raise Exception('Error: Line overflow.')
+
+        self.powerLines[line]['value'] = power
+
+    def getValueFromNode(self, line):
+        if not line in self.powerLines:
+            line = (line[1], line[0])
+
+        if not line in self.powerLines:
+            raise Exception('Error: Invalide power line.')
+
+        return self.powerLines[line]['value']
 
     def writeResults(self):
         pass
