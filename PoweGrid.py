@@ -1,4 +1,5 @@
 from Node import Node
+import random
 
 class Generator:
     def __init__(self, maxValue):
@@ -23,10 +24,19 @@ class Generator:
 class Resource:
     def __init__(self, values, distribution):
         self.values = values
+        self.distribution = distribution
         self.index = 0
+        self.distributionIterator = 0
+        self.maxIteration = len(self.distribution)
 
     def getProbeblisticValue(self):
-        return self.values[0]
+        r = self.distribution[self.distributionIterator]
+        self.distributionIterator += 1
+        if self.distributionIterator == self.maxIteration:
+            self.distributionIterator = 0
+        if r < self.prob:
+	       return self.values[0]
+        return 0
 
     def getValue(self):
         return self.values[self.index]
@@ -51,7 +61,7 @@ class PowerGrid:
             self.generators[g] = Generator(self.gridJSON['generators'][g]['maxValue'])
 
         for r in self.gridJSON['resources']:
-            self.resources[r] = Resource(self.gridJSON['resources'][r]['values'], self.gridJSON['resources'][r]['distribution'])
+            self.resources[r] = Resource(self.gridJSON['resources'][r]['values'], slef.gridJSON['distributions'][self.gridJSON['resources'][r]['distribution']])
 
         for l in self.gridJSON['loads']:
             self.loads[l] = self.gridJSON['loads'][l]
@@ -122,6 +132,15 @@ class PowerGrid:
             raise Exception('Error: Invalide power line.')
 
         return self.powerLines[line]['value']
+
+    def getCapacityOfLine(self, line):
+        if not line in self.powerLines:
+            line = (line[1], line[0])
+
+        if not line in self.powerLines:
+            raise Exception('Error: Invalide power line.')
+
+        return self.powerLines[line]['capacity']
 
     def writeResults(self):
         pass
